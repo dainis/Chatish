@@ -14,13 +14,12 @@ fs.readFile('./htmls/index.html', function (err, data) {
 
 
 io.sockets.on('connection', function (socket) {
-	sys.puts('connected');
-	
-	socket.emit('news', {
-		hello: 'world'
-	});
-	socket.on('chat_message', function (data) {
-		socket.emit('trolololo', {head : 'tail'})
+
+	io.sockets.emit('connection', {trololo : 'yes'});
+
+
+	socket.on('chat_message', function (data, calback) {
+		calback('trolololo');
 		console.log(data);
 	});
 });
