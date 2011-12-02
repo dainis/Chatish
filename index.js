@@ -19,7 +19,8 @@ io.sockets.on('connection', function (socket) {
 	socket.emit('news', {
 		hello: 'world'
 	});
-	socket.on('my other event', function (data) {
+	socket.on('chat_message', function (data) {
+		socket.emit('trolololo', {head : 'tail'})
 		console.log(data);
 	});
 });
@@ -80,4 +81,4 @@ catch (e) {
 }
 
       
-sys.puts("Server running at http://localhost:8080/");  
+sys.puts("Server running at http://192.168.88.238:8080/");  
