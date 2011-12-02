@@ -17,9 +17,10 @@ io.sockets.on('connection', function (socket) {
 
 	io.sockets.emit('connection', {trololo : 'yes'});
 
-
 	socket.on('chat_message', function (data, calback) {
-		calback('trolololo');
+		
+		io.sockets.emit('new_message', data);
+		
 		console.log(data);
 	});
 });
