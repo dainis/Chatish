@@ -4,23 +4,39 @@
     <head>
 	<title></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<link rel="stylesheet" href="/bootstrap/bootstrap.css"/>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js" type="text/javascript"></script>
 	<script src="/node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js"></script>
+	<script src="/bootstrap/js/bootstrap-modal.js"></script>
 	<script src="/js/js.js"></script>
     </head>
+
     <body>
-	<div>
-	    <div id="users"></div>
-	    <div id="messages"></div>
-	    <form>
-		<fieldset>
-		    <textarea id="chat"></textarea>
-
-
-		</fieldset>
-		<a href="#" id="send">SEND</a>
-	    </form>
-	</div>
 	<canvas id="canvas"></canvas>
+	<div class="modal hide fade in" id="chat_modal">
+	    <input type="hidden" name="user_id"/>
+	    <div class="modal-header">
+		<a href="#" class="close">×</a>
+		<h3>Chat</h3>
+	    </div>
+
+	    <div class="modal-body">
+		<div class="clearfix">
+		    <div id="messages"></div>
+		</div>
+		<div class="clearfix">
+		    <div class="input">
+			<textarea class="xxlarge" rows="3" id="message"></textarea>
+		    </div>
+
+		</div>
+	    </div>
+
+	    <div class="modal-footer">
+		<a href="#" class="btn primary" id="send_message">Send</a>
+		<a href="#" class="btn secondary" id="close_chat">Close</a>
+	    </div>
+        </div>
     </body>
 </html>

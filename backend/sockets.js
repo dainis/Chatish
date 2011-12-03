@@ -22,17 +22,6 @@ exports.register = function() {
 	};
     }
 
-    var conversation_with = function(id) {
-
-	if(users[id] == undefined) {
-	    return {
-		status: error
-	    };
-	}
-    }
-
-
-
     io.sockets.on('connection', function (socket) {
 
 	socket.emit('connect', users); //emit previously connected users
@@ -69,9 +58,13 @@ exports.register = function() {
 	    io.sockets.emit('disconnected', position);
 	});
 
-	socket.on('move', function(data){
+	socket.on('chat_end', function(data){
+	    if(data.id && user_sockets[data.id]) {
+		user_sockets[data.id].emit('chat_end');
+	    }
+	});
 
-	    console.log(data);
+	socket.on('move', function(data){
 
 	    var result = {status: 'fail'};
 
@@ -88,14 +81,13 @@ exports.register = function() {
 		result = field.right(socket.id);
 	    }
 
-	    console.log(result);
-
 	    if(result.status == 'moved') {
 		io.sockets.json.emit('moved', result);
 	    }
 
 	    if(result.status == 'ocupied') {
 		socket.json.emit('start_chat', result);
+		user_sockets[result.user.id].json.emit('start_chat', field.get_user(socket.id));
 	    }
 	})
     });

@@ -16,6 +16,20 @@ exports.init = function() {
 	}
     }
 
+    this.get_user = function(id) {
+
+	for(var x = 0; x < field_x; x++) {
+	    for(var y = 0; y < field_y; y++) {
+
+		if(field[x][y] && field[x][y].id == id) {
+		    return field[x][y];
+		}
+	    }
+	}
+
+	return false;
+    }
+
     this.add = function(id) {
 
 	var added = false;

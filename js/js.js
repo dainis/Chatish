@@ -15,6 +15,8 @@ $(document).ready(function(){
     document.getElementById('canvas').setAttribute('height',tiles_y * tile_h);
 
 
+    var chat_modal = $('#chat_modal').modal();
+
     //new user came in
     socket.on('new_user', function(data) {
 	$('#users').append('<p><a href="#" class="user" rel="' + data.id + '">' + data.id + '</a></p>');
@@ -50,7 +52,10 @@ $(document).ready(function(){
     });
 
     socket.on('disconnect', function(data){
-	clear_avatar(data.x, data.y);
+	if(data) {
+	    $('input[name="user_id"]', chat_modal).val('');
+	    clear_avatar(data.x, data.y);
+	}
     });
 
 
@@ -79,13 +84,44 @@ $(document).ready(function(){
 	push_message($.extend(response, {user: 'He'}));
     })
 
-    $('#send').click(function(){
+    socket.on('start_chat', function(data) {
 
-	socket.emit('chat_message', {message: $('#chat').val(), to: active_user}, function(response){
-	    console.log(response);
-	});
+	chat_modal.modal('show');
 
-	 push_message({message: $('#chat').val(), user: 'You'});
+	if(data.user) {
+	    $('input[name="user_id"]', chat_modal).val(data.user.id);
+	}
+	else if(data.id) {
+	    $('input[name="user_id"]', chat_modal).val(data.id);
+	}
+    });
+
+    socket.on('chat_end', function(){
+	$('input[name="user_id"]', chat_modal).val('');
+	chat_modal.modal('hide');
+    });
+
+    $('#close_chat').click(function(){
+	chat_modal.modal('hide');
+	return false;
+    })
+
+    chat_modal.bind('hide', function(){
+	if($('input[name="user_id"]', chat_modal).val() != '') {
+	    socket.emit('chat_end', {id : $('input[name="user_id"]', chat_modal).val()});
+	}
+    });
+
+    chat_modal.bind('show', function(){
+	$('#messages', chat_modal).html('');
+    });
+
+    $('#send_message').click(function(){
+
+	socket.emit('chat_message', {message: $('#message').val(), to: $('input[name="user_id"]', chat_modal).val()});
+
+	push_message({message: $('#message').val(), user: 'You'});
+	$('#message').val('');
 
 	return false;
     })
@@ -125,10 +161,10 @@ $(document).ready(function(){
 
 var push_message = function(response){
 
-    var message = $('<div><span></span><p></p></div>');
+    var message = $('<p><span></span><span><span></p>');
 
-    $('p', message).text(response.message);
-    $('span', message).text(response.user);
+    $('span:eq(1)', message).text(response.message);
+    $('span:eq(0)', message).text(response.user + ' : ');
     $('#messages').append(message)
 }
 
