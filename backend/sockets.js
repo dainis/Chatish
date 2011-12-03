@@ -62,6 +62,13 @@ exports.register = function() {
 	    fn(history.conversation_history(data.id, socket.id));
 	});
 
+	socket.on('disconnect', function () {
+
+	    var position = field.remove(socket.id);
+
+	    io.sockets.emit('disconnected', position);
+	});
+
 	socket.on('move', function(data){
 
 	    console.log(data);

@@ -49,6 +49,10 @@ $(document).ready(function(){
 	draw_avatar(data.new_position_user.x, data.new_position_user.y, data.new_position_user.avatar);
     });
 
+    socket.on('disconnect', function(data){
+	clear_avatar(data.x, data.y);
+    });
+
 
     $('.user').live('click', function(){
 

@@ -47,10 +47,12 @@ exports.init = function() {
 	    for(var y = 0; y < field_y; y++) {
 		if(field[x][y] && field[x][y].id == id) {
 		    field[x][y] = null;
-		    return;
+		    return {x: x, y: y};
 		}
 	    }
 	}
+
+	return false;
     }
 
     this.get_field = function() {
