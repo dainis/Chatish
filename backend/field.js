@@ -3,8 +3,8 @@ exports.init = function() {
 
     var field = [];
 
-    var field_x = 18;
-    var field_y = 8;
+    var field_x = 22;
+    var field_y = 16;
 
     var avatars = [1, 2, 3, 4, 5];
 

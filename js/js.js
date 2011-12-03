@@ -7,8 +7,8 @@ $(document).ready(function(){
 
     var tile_h = 55;
     var tile_w = 55;
-    var tiles_x = 18;
-    var tiles_y = 8;
+    var tiles_x = 22;
+    var tiles_y = 16;
     var img_path = '/img/';
     var canva = document.getElementById('canvas').getContext('2d');
     document.getElementById('canvas').setAttribute('width',tiles_x * tile_w);
@@ -16,7 +16,7 @@ $(document).ready(function(){
 
     var can_move = true;
 
-    var chat_modal = $('#chat_modal').modal();
+    var chat_modal = $('#chat_modal').modal({backdrop: true, keyboard: true});
 
     //new user came in
     socket.on('new_user', function(data) {
