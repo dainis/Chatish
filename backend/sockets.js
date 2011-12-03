@@ -12,6 +12,12 @@ exports.register = function() {
 
     var io = require('socket.io').listen(8081);
 
+    io.configure(function(){
+	io.set('heartbeat timeout', 5);
+	io.set('close timeout', 5);
+	io.set('heartbeat interval', 10);
+    })
+
     var prepare_message = function(data, socket) {
 
 	return {
