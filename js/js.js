@@ -14,6 +14,7 @@ $(document).ready(function(){
     document.getElementById('canvas').setAttribute('width',tiles_x * tile_w);
     document.getElementById('canvas').setAttribute('height',tiles_y * tile_h);
 
+    var can_move = true;
 
     var chat_modal = $('#chat_modal').modal();
 
@@ -103,6 +104,7 @@ $(document).ready(function(){
 
     $('#close_chat').click(function(){
 	chat_modal.modal('hide');
+
 	return false;
     })
 
@@ -110,10 +112,14 @@ $(document).ready(function(){
 	if($('input[name="user_id"]', chat_modal).val() != '') {
 	    socket.emit('chat_end', {id : $('input[name="user_id"]', chat_modal).val()});
 	}
+
+	can_move = true;
     });
 
     chat_modal.bind('show', function(){
 	$('#messages', chat_modal).html('');
+
+	can_move = false;
     });
 
     $('#send_message').click(function(){
@@ -144,16 +150,17 @@ $(document).ready(function(){
     }
 
     $(document).keydown(function(e){
-	if (e.keyCode == 37) {
+
+	if (e.keyCode == 37 && can_move) {
 	   socket.json.emit('move', {direction: 'left'});
 	}
-	else if(e.keyCode == 38) {
+	else if(e.keyCode == 38 && can_move) {
 	    socket.json.emit('move', {direction: 'up'});
 	}
-	else if(e.keyCode == 39) {
+	else if(e.keyCode == 39 && can_move) {
 	    socket.json.emit('move', {direction: 'right'});
 	}
-	else if(e.keyCode == 40) {
+	else if(e.keyCode == 40 && can_move) {
 	    socket.json.emit('move', {direction: 'down'});
 	}
     });
