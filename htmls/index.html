@@ -20,6 +20,15 @@
 	    .modal {
 		position: absolute;
 	    }
+
+	    #nick_modal {
+		width:300px;
+		margin-left:-150px;
+	    }
+
+	    #nick_modal label {
+		width: auto;
+	    }
 	</style>
 
     </head>
@@ -48,6 +57,26 @@
 	    <div class="modal-footer">
 		<a href="#" class="btn primary" id="send_message">Send</a>
 		<a href="#" class="btn secondary" id="close_chat">Close</a>
+	    </div>
+        </div>
+
+	<div class="modal hide fade in" id="nick_modal">
+	    <div class="modal-header">
+		<h3>Enter nick</h3>
+	    </div>
+
+	    <div class="modal-body">
+		<div class="clearfix">
+		    <label>Nick : </label>
+		    <div class="input">
+			<input type="text" class="large" id="nick"/>
+		    </div>
+
+		</div>
+	    </div>
+
+	    <div class="modal-footer">
+		<a href="#" class="btn primary" id="send_nick">OK</a>
 	    </div>
         </div>
     </body>

@@ -1,7 +1,18 @@
 
 $(document).ready(function(){
 
+    $('#nick_modal').modal('show');
+
     var socket = io.connect('http://localhost:8081');
+
+    $('#send_nick').click(function(){
+
+	socket.emit('nick', {nick: $('#nick').val()});
+	$('#nick_modal').modal('hide');
+
+	return false;
+    })
+
 
     var active_user = 0;
 
@@ -11,133 +22,139 @@ $(document).ready(function(){
     var tiles_x = 22;
     var tiles_y = 16;
     var img_path = '/img/';
+
     var canva = document.getElementById('canvas').getContext('2d');
     document.getElementById('canvas').setAttribute('width',tiles_x * tile_w);
     document.getElementById('canvas').setAttribute('height',tiles_y * tile_h);
 
     var can_move = true;
 
-    var chat_modal = $('#chat_modal').modal({backdrop: true, keyboard: true});
-
-    //new user came in
-    socket.on('new_user', function(data) {
-	$('#users').append('<p><a href="#" class="user" rel="' + data.id + '">' + data.id + '</a></p>');
-    })
-
-    socket.on('connect', function(data){
-
-	$('#users').html('');
-
-	if(data) {
-	    $.each(data, function(i, user){
-		$('#users').append('<p><a href="#" class="user" rel="' + user + '">' + user + '</a></p>');
-	    })
-	}
-
+    var chat_modal = $('#chat_modal').modal({
+	backdrop: true,
+	keyboard: true
     });
 
-    socket.on('redraw', function(data){
+    socket.on('connect', function(){
 
-	clear_canva();
-
-	if(data) {
-	    $.each(data, function(i, user){
-		draw_avatar(user.x, user.y, user.avatar);
-	    })
-	}
-
-    });
-
-    socket.on('moved', function(data){
-	clear_avatar(data.old_position.x, data.old_position.y);
-	draw_avatar(data.new_position_user.x, data.new_position_user.y, data.new_position_user.avatar);
-    });
-
-    socket.on('disconnected', function(data){
-
-	if(data) {
-	    
-	    if($('input[name="user_id"]', chat_modal).val() == data.id) {
-		chat_modal.modal('hide');
-		$('input[name="user_id"]', chat_modal).val('');
-	    }
-
-	    clear_avatar(data.x, data.y);
-	}
-    });
-
-
-    $('.user').live('click', function(){
-
-	var that = $(this);
-	$('#messages').html('');
-
-	active_user = that.attr('rel');
-
-	draw_avatar(1, 1, 1);
-
-	socket.emit('history', {user: that.attr('rel')}, function(response) {
-
-	    if(response) {
-		$.each(response, function(i, message){
-
-		})
-	    }
+	//new user came in
+	socket.on('new_user', function(data) {
+	    $('#users').append('<p><a href="#" class="user" rel="' + data.id + '">' + data.id + '</a></p>');
 	})
 
-	return false;
+	socket.on('redraw', function(data){
+
+	    clear_canva();
+
+	    if(data) {
+		$.each(data, function(i, user){
+		    draw_avatar(user.x, user.y, user.avatar);
+		})
+	    }
+
+	});
+
+	socket.on('moved', function(data){
+	    clear_avatar(data.old_position.x, data.old_position.y);
+	    draw_avatar(data.new_position_user.x, data.new_position_user.y, data.new_position_user.avatar);
+	});
+
+	socket.on('disconnected', function(data){
+
+	    if(data) {
+
+		if($('input[name="user_id"]', chat_modal).val() == data.id) {
+		    $('input[name="user_id"]', chat_modal).val('');
+		    chat_modal.modal('hide');
+		}
+
+		clear_avatar(data.x, data.y);
+	    }
+	});
+
+	socket.on('new_message', function(response) {
+	    push_message(response);
+	})
+
+	socket.on('start_chat', function(data) {
+
+	    chat_modal.modal('show');
+
+	    if(data.user) {
+		$('input[name="user_id"]', chat_modal).val(data.user.id);
+	    }
+	    else if(data.id) {
+		$('input[name="user_id"]', chat_modal).val(data.id);
+	    }
+	});
+
+	socket.on('chat_end', function(){
+	    $('input[name="user_id"]', chat_modal).val('');
+	    chat_modal.modal('hide');
+	});
+
+	$('#close_chat').click(function(){
+	    chat_modal.modal('hide');
+
+	    return false;
+	})
+
+	chat_modal.bind('hide', function(){
+	    if($('input[name="user_id"]', chat_modal).val() != '') {
+		socket.emit('chat_end', {
+		    id : $('input[name="user_id"]', chat_modal).val()
+		});
+	    }
+
+	    can_move = true;
+	});
+
+	chat_modal.bind('show', function(){
+	    $('#messages', chat_modal).html('');
+
+	    can_move = false;
+	});
+
+	$('#send_message').click(function(){
+
+	    socket.emit('chat_message', {
+		message: $('#message').val(),
+		to: $('input[name="user_id"]', chat_modal).val()
+	    });
+
+	    push_message({
+		message: $('#message').val(),
+		nick: 'You'
+	    });
+	    $('#message').val('');
+
+	    return false;
+	})
+
+	$(document).keydown(function(e){
+
+	    if (e.keyCode == 37 && can_move) {
+		socket.json.emit('move', {
+		    direction: 'left'
+		});
+	    }
+	    else if(e.keyCode == 38 && can_move) {
+		socket.json.emit('move', {
+		    direction: 'up'
+		});
+	    }
+	    else if(e.keyCode == 39 && can_move) {
+		socket.json.emit('move', {
+		    direction: 'right'
+		});
+	    }
+	    else if(e.keyCode == 40 && can_move) {
+		socket.json.emit('move', {
+		    direction: 'down'
+		});
+	    }
+	});
+
     });
-
-    socket.on('new_message', function(response) {
-	push_message($.extend(response, {user: 'He'}));
-    })
-
-    socket.on('start_chat', function(data) {
-
-	chat_modal.modal('show');
-
-	if(data.user) {
-	    $('input[name="user_id"]', chat_modal).val(data.user.id);
-	}
-	else if(data.id) {
-	    $('input[name="user_id"]', chat_modal).val(data.id);
-	}
-    });
-
-    socket.on('chat_end', function(){
-	$('input[name="user_id"]', chat_modal).val('');
-	chat_modal.modal('hide');
-    });
-
-    $('#close_chat').click(function(){
-	chat_modal.modal('hide');
-
-	return false;
-    })
-
-    chat_modal.bind('hide', function(){
-	if($('input[name="user_id"]', chat_modal).val() != '') {
-	    socket.emit('chat_end', {id : $('input[name="user_id"]', chat_modal).val()});
-	}
-
-	can_move = true;
-    });
-
-    chat_modal.bind('show', function(){
-	$('#messages', chat_modal).html('');
-
-	can_move = false;
-    });
-
-    $('#send_message').click(function(){
-
-	socket.emit('chat_message', {message: $('#message').val(), to: $('input[name="user_id"]', chat_modal).val()});
-
-	push_message({message: $('#message').val(), user: 'You'});
-	$('#message').val('');
-
-	return false;
-    })
 
     var draw_avatar = function(x, y, avatar) {
 
@@ -179,21 +196,7 @@ $(document).ready(function(){
 	canva.clearRect(x * tile_w, y * tile_h,tile_w ,tile_h);
     }
 
-    $(document).keydown(function(e){
 
-	if (e.keyCode == 37 && can_move) {
-	   socket.json.emit('move', {direction: 'left'});
-	}
-	else if(e.keyCode == 38 && can_move) {
-	    socket.json.emit('move', {direction: 'up'});
-	}
-	else if(e.keyCode == 39 && can_move) {
-	    socket.json.emit('move', {direction: 'right'});
-	}
-	else if(e.keyCode == 40 && can_move) {
-	    socket.json.emit('move', {direction: 'down'});
-	}
-    });
 })
 
 var push_message = function(response){
@@ -201,7 +204,7 @@ var push_message = function(response){
     var message = $('<p><span></span><span><span></p>');
 
     $('span:eq(1)', message).text(response.message);
-    $('span:eq(0)', message).text(response.user + ' : ');
+    $('span:eq(0)', message).text(response.nick + ' : ');
     $('#messages').append(message)
 }
 

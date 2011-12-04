@@ -38,24 +38,28 @@ exports.register = function() {
 	}
     }
 
-    io.sockets.on('connection', function (socket) {
+    io.sockets.on('connection', function (socket, data) {
 
-	socket.emit('connect', users); //emit previously connected users
+	socket.on('nick', function(data){
 
-	field.add(socket.id);
+	    field.add(socket.id);
 
-	users.push(socket.id);
+	    users[socket.id] = data.nick;
 
-	user_sockets[socket.id] = socket;
+	    user_sockets[socket.id] = socket;
 
-	io.sockets.json.emit('redraw', field.get_field());
+	    io.sockets.json.emit('redraw', field.get_field());
 
-	socket.broadcast.emit('new_user', {id: socket.id}); //emit new user to the all previous users
+	    socket.broadcast.emit('new_user', {id: socket.id}); //emit new user to the all previous users
+	})
+
 
 	//New message came in
 	socket.on('chat_message', function (data, calback) {
 
 	    var message = prepare_message(data, socket);
+
+	    message.nick = users[data.to];
 
 	    history.add(socket.id, data.to, message);
 
