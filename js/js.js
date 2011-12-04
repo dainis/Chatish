@@ -53,9 +53,15 @@ $(document).ready(function(){
 	draw_avatar(data.new_position_user.x, data.new_position_user.y, data.new_position_user.avatar);
     });
 
-    socket.on('disconnect', function(data){
+    socket.on('disconnected', function(data){
+
 	if(data) {
-	    $('input[name="user_id"]', chat_modal).val('');
+	    
+	    if($('input[name="user_id"]', chat_modal).val() == data.id) {
+		chat_modal.modal('hide');
+		$('input[name="user_id"]', chat_modal).val('');
+	    }
+
 	    clear_avatar(data.x, data.y);
 	}
     });

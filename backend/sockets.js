@@ -4,7 +4,9 @@ exports.register = function() {
 
     var users = [];
 
-    var user_sockets = new Array();
+    var user_sockets = [];
+
+    var blocked_users = [];
 
     var history = require('../backend/historylist').init();
 
@@ -16,6 +18,7 @@ exports.register = function() {
 	io.set('heartbeat timeout', 5);
 	io.set('close timeout', 5);
 	io.set('heartbeat interval', 10);
+	io.set('debug', 1);
     })
 
     var prepare_message = function(data, socket) {
@@ -26,6 +29,13 @@ exports.register = function() {
 	    timestamp: Date.now(),
 	    id: socket.id
 	};
+    }
+
+    var delete_block = function(id) {
+
+	if(blocked_users[id]) {
+	    delete blocked_users[id];
+	}
     }
 
     io.sockets.on('connection', function (socket) {
@@ -65,6 +75,10 @@ exports.register = function() {
 	});
 
 	socket.on('chat_end', function(data){
+
+	    delete_block(socket.id);
+	    delete_block(data.id);
+
 	    if(data.id && user_sockets[data.id]) {
 		user_sockets[data.id].emit('chat_end');
 	    }
@@ -92,8 +106,18 @@ exports.register = function() {
 	    }
 
 	    if(result.status == 'ocupied') {
+
+		var user_to = field.get_user(socket.id);
+
+		if(blocked_users[result.user.id]) {
+		    return;
+		}
+
+		blocked_users[result.user.id] = true;
+		blocked_users[socket.id] = true;
+
 		socket.json.emit('start_chat', result);
-		user_sockets[result.user.id].json.emit('start_chat', field.get_user(socket.id));
+		user_sockets[result.user.id].json.emit('start_chat', user_to);
 	    }
 	})
     });

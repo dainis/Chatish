@@ -60,8 +60,13 @@ exports.init = function() {
 
 	    for(var y = 0; y < field_y; y++) {
 		if(field[x][y] && field[x][y].id == id) {
+
+		    var return_obj = field[x][y];
+
+		    delete field[x][y];
 		    field[x][y] = null;
-		    return {x: x, y: y};
+		    
+		    return return_obj;
 		}
 	    }
 	}
