@@ -5,6 +5,7 @@ $(document).ready(function(){
 
     var active_user = 0;
 
+    var image_cache = [];
     var tile_h = 55;
     var tile_w = 55;
     var tiles_x = 22;
@@ -133,12 +134,35 @@ $(document).ready(function(){
     })
 
     var draw_avatar = function(x, y, avatar) {
-	var img = new Image();
-	img.src = img_path + avatar + '.png';
 
-	img.onload=function(){
-	    canva.drawImage(img, x * tile_w, y * tile_h, tile_w, tile_h);
-	};
+	if(! image_cache[avatar]) {
+
+	    var img = new Image();
+	    img.src = img_path + avatar + '.png';
+
+	    img.onload=function(){
+
+		var img_canva = document.createElement('canvas');
+		var ctx = img_canva.getContext('2d');
+
+		img_canva.width = img.width;
+		img_canva.height = img.height;
+
+		ctx.drawImage(img, 0, 0, img.width, img.height);
+		image_cache[avatar] = ctx.getImageData(0,0, img.width, img.height);
+
+		draw_avatar_from_cache(x, y, avatar);
+	    };
+	}
+	else {
+	    draw_avatar_from_cache(x, y, avatar);
+	}
+
+    }
+
+    var draw_avatar_from_cache = function(x, y, avatar) {
+
+	canva.putImageData(image_cache[avatar], x * tile_w, y * tile_h);
     }
 
     var clear_canva = function() {
