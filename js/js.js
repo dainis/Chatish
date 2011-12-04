@@ -1,7 +1,7 @@
 
 $(document).ready(function(){
 
-    $('#nick_modal').modal('show');
+    $('#nick_modal').modal({backdrop: 'static'}).modal('show');
 
     var socket = io.connect('http://localhost:8081');
 
