@@ -195,7 +195,7 @@ $(document).ready(function(){
 		canva.putImageData(image_cache[avatar], x * tile_w, y * tile_h);
 		
 		if(nick) {
-			canva.font = '12px sans-serif';
+			canva.font = 'bold 14px sans-serif';
 			canva.textBaseline = 'top';
 			canva.textAlign = 'center';
 
