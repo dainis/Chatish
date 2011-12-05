@@ -10,6 +10,7 @@
 	<script src="/node_modules/socket.io/node_modules/socket.io-client/dist/socket.io.js"></script>
 	<script src="/bootstrap/js/bootstrap-modal.js"></script>
 	<script src="/js/js.js"></script>
+	<script src="/js/background.js"></script>
 
 	<style>
 	    #messages {
@@ -29,12 +30,22 @@
 	    #nick_modal label {
 		width: auto;
 	    }
+		#background {
+			background-image:url(http://gallery.rptools.net/d/20623-1/BluffTexture.jpg);
+			z-index: 1; 
+			height: 881px; 
+			width: 1211px;
+			margin: 0 auto;
+		}
 	</style>
 
     </head>
 
     <body>
-	<canvas id="canvas" style="border: 1px solid #000; margin: 10px auto; display:block"></canvas>
+	<div id="background">
+		<canvas id="canvas" style="border: 1px solid #000; margin: 10px auto; display:block; z-index:99"></canvas>
+	</div>
+	
 	<div class="modal hide fade in" id="chat_modal">
 	    <input type="hidden" name="user_id"/>
 	    <div class="modal-header">
