@@ -59,7 +59,7 @@ exports.register = function() {
 
 	    var message = prepare_message(data, socket);
 
-	    message.nick = users[data.to];
+	    message.nick = users[socket.id];
 
 	    history.add(socket.id, data.to, message);
 
