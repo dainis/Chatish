@@ -5,7 +5,7 @@ $(document).ready(function(){
 		backdrop: 'static'
 	}).modal('show');
 
-	var socket = io.connect('http://localhost:8081');
+	var socket = io.connect('http://192.168.88.238:8081');
 
 	$('#send_nick').click(function(){
 
@@ -155,6 +155,9 @@ $(document).ready(function(){
 				socket.json.emit('move', {
 					direction: 'down'
 				});
+			}
+			else if(e.keyCode == 27) {
+				return false;
 			}
 		});
 
