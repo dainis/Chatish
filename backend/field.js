@@ -1,166 +1,197 @@
 
 exports.init = function() {
 
-    var field = [];
+	var field = [];
 
-    var field_x = 22;
-    var field_y = 16;
+	var field_x = 22;
+	var field_y = 16;
 
-    var avatars = [1, 2, 3, 4, 5];
-
-    for(var x = 0; x < field_x; x++) {
-	field[x] = new Array(field_y);
-
-	for(var y = 0; y < field_y; y++) {
-	    field[x][y] = null;
-	}
-    }
-
-    this.get_user = function(id) {
+	var avatars = [1, 2, 3, 4, 5];
 
 	for(var x = 0; x < field_x; x++) {
-	    for(var y = 0; y < field_y; y++) {
+		field[x] = new Array(field_y);
 
-		if(field[x][y] && field[x][y].id == id) {
-		    return field[x][y];
+		for(var y = 0; y < field_y; y++) {
+			field[x][y] = null;
 		}
-	    }
 	}
 
-	return false;
-    }
+	this.get_user = function(id) {
 
-    this.add = function(id) {
+		for(var x = 0; x < field_x; x++) {
+			for(var y = 0; y < field_y; y++) {
 
-	var added = false;
-	var x, y;
+				if(field[x][y] && field[x][y].id == id) {
+					return field[x][y];
+				}
+			}
+		}
 
-	while(! added) {
-	    x = Math.floor(Math.random() * field_x);
-	    y = Math.floor(Math.random() * field_y);
-
-	    if(! field[x][y]) {
-		added = true;
-	    }
+		return false;
 	}
 
-	var user = {id: id,
-		    avatar: avatars[Math.floor(Math.random() * avatars.length)],
-		    x: x,
-		    y: y};
+	this.add = function(id, nick) {
+		
+		var added = false;
+		var x, y;
 
-	field[x][y] = user;
+		while(! added) {
+			x = Math.floor(Math.random() * field_x);
+			y = Math.floor(Math.random() * field_y);
 
-	return user;
-    }
+			if(! field[x][y]) {
+				added = true;
+			}
+		}
 
-    this.remove = function(id) {
+		var user = {
+			id: id,
+			avatar: avatars[Math.floor(Math.random() * avatars.length)],
+			x: x,
+			y: y,
+			nick: nick
+		};
 
-	for(var x = 0; x < field_x; x++) {
+		field[x][y] = user;
 
-	    for(var y = 0; y < field_y; y++) {
-		if(field[x][y] && field[x][y].id == id) {
+		return user;
+	}
 
-		    var return_obj = field[x][y];
+	this.remove = function(id) {
 
-		    delete field[x][y];
-		    field[x][y] = null;
+		for(var x = 0; x < field_x; x++) {
+
+			for(var y = 0; y < field_y; y++) {
+				if(field[x][y] && field[x][y].id == id) {
+
+					var return_obj = field[x][y];
+
+					delete field[x][y];
+					field[x][y] = null;
 		    
-		    return return_obj;
+					return return_obj;
+				}
+			}
 		}
-	    }
+
+		return false;
 	}
 
-	return false;
-    }
+	this.get_field = function() {
 
-    this.get_field = function() {
+		var return_array = [];
 
-	var return_array = [];
+		for(var x = 0; x < field_x; x++) {
 
-	for(var x = 0; x < field_x; x++) {
-
-	    for(var y = 0; y < field_y; y++) {
-		if(field[x][y] != null) {
-		    return_array.push(field[x][y]);
+			for(var y = 0; y < field_y; y++) {
+				if(field[x][y] != null) {
+					return_array.push(field[x][y]);
+				}
+			}
 		}
-	    }
+
+		return return_array;
 	}
 
-	return return_array;
-    }
+	var current_position = function(id) {
+		for(var x = 0; x < field_x; x++) {
 
-    var current_position = function(id) {
-	for(var x = 0; x < field_x; x++) {
+			for(var y = 0; y < field_y; y++) {
 
-	    for(var y = 0; y < field_y; y++) {
-
-		if(field[x][y] != null && field[x][y].id == id) {
-		    return {x: x, y: y};
+				if(field[x][y] != null && field[x][y].id == id) {
+					return {
+						x: x, 
+						y: y
+					};
+				}
+			}
 		}
-	    }
+
+		return false;
 	}
 
-	return false;
-    }
+	var move_to_position = function(id, new_pos, old_pos) {
 
-    var move_to_position = function(id, new_pos, old_pos) {
+		if(field[new_pos.x][new_pos.y] != null) {
+			return {
+				status: 'ocupied', 
+				user: field[new_pos.x][new_pos.y]
+				};
+		}
 
-	console.log(field[new_pos.x][new_pos.y]);
+		field[new_pos.x][new_pos.y] = field[old_pos.x][old_pos.y];
+		field[old_pos.x][old_pos.y] = null;
+		field[new_pos.x][new_pos.y].x = new_pos.x;
+		field[new_pos.x][new_pos.y].y = new_pos.y;
 
-	if(field[new_pos.x][new_pos.y] != null) {
-	    return {status: 'ocupied', user: field[new_pos.x][new_pos.y]};
+		return {
+			status: 'moved', 
+			old_position : old_pos, 
+			new_position_user: field[new_pos.x][new_pos.y]
+			};
+
 	}
 
-	field[new_pos.x][new_pos.y] = field[old_pos.x][old_pos.y];
-	field[old_pos.x][old_pos.y] = null;
-	field[new_pos.x][new_pos.y].x = new_pos.x;
-	field[new_pos.x][new_pos.y].y = new_pos.y;
+	this.up = function(id) {
+		var position = current_position(id);
 
-	return {status: 'moved', old_position : old_pos, new_position_user: field[new_pos.x][new_pos.y]};
+		if(position && position.y - 1 >= 0) {
+			return move_to_position(id, {
+				x: position.x, 
+				y: position.y - 1
+				}, position);
+		}
 
-    }
-
-    this.up = function(id) {
-	var position = current_position(id);
-
-	if(position && position.y - 1 >= 0) {
-	    return move_to_position(id, {x: position.x, y: position.y - 1}, position);
+		return {
+			status : 'fail'
+		};
 	}
 
-	return {status : 'fail'};
-    }
+	this.down = function(id) {
+		var position = current_position(id);
 
-    this.down = function(id) {
-	var position = current_position(id);
+		if(position && position.y + 1 < field_y) {
+			return move_to_position(id, {
+				x: position.x, 
+				y: position.y + 1
+				}, position);
+		}
 
-	if(position && position.y + 1 < field_y) {
-	    return move_to_position(id, {x: position.x, y: position.y + 1}, position);
+		return {
+			status : 'fail'
+		};
 	}
 
-	return {status : 'fail'};
-    }
+	this.right = function(id) {
+		var position = current_position(id);
 
-    this.right = function(id) {
-	var position = current_position(id);
+		if(position && position.x + 1 < field_x) {
+			return move_to_position(id, {
+				x: position.x + 1, 
+				y: position.y
+				}, position);
+		}
 
-	if(position && position.x + 1 < field_x) {
-	    return move_to_position(id, {x: position.x + 1, y: position.y}, position);
+		return {
+			status : 'fail'
+		};
 	}
 
-	return {status : 'fail'};
-    }
+	this.left = function(id) {
 
-    this.left = function(id) {
+		var position = current_position(id);
 
-	var position = current_position(id);
+		if(position && position.x - 1 >= 0) {
+			return move_to_position(id, {
+				x: position.x - 1, 
+				y: position.y
+				}, position);
+		}
 
-	if(position && position.x - 1 >= 0) {
-	    return move_to_position(id, {x: position.x - 1, y: position.y}, position);
+		return {
+			status : 'fail'
+		};
 	}
 
-	return {status : 'fail'};
-    }
-
-    return this;
+	return this;
 }
