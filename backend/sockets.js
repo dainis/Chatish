@@ -8,7 +8,7 @@ exports.register = function() {
 
     var blocked_users = [];
 
-    var history = require('../backend/historylist').init();
+    var history = require('../backend/historyList').init();
 
     var field = require('../backend/field').init();
 
