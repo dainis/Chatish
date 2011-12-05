@@ -197,7 +197,9 @@ $(document).ready(function(){
 		if(nick) {
 			canva.font = '12px sans-serif';
 			canva.textBaseline = 'top';
-			canva.fillText(nick, x * tile_w, y * tile_h, tile_w);
+			canva.textAlign = 'center';
+
+			canva.fillText(nick, x * tile_w + tile_w / 2, y * tile_h, tile_w);
 		}
 		
 	}
